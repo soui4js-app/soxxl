@@ -4,6 +4,8 @@ import {R} from "uires/R.js";
 var g_workDir="";
 
 const base_id = 1000;
+const kBoardSize={row:7,col:7};
+
 class MainDialog extends soui4.JsHostWnd{
 	constructor(){
 		super("layout:dlg_main");
@@ -21,7 +23,6 @@ class MainDialog extends soui4.JsHostWnd{
 	
 	initBoard(){
 		let wndBoard = this.FindIChildByID(R.id.wnd_board);
-		const kBoardSize={row:7,col:7};
 		wndBoard.DestroyAllChildren();
 		wndBoard.SetAttribute("columnCount",""+kBoardSize.col,false);
 	
@@ -41,6 +42,16 @@ class MainDialog extends soui4.JsHostWnd{
 	init(){
 		console.log("init");
 		this.initBoard();
+		let wndBoard = this.FindIChildByID(R.id.wnd_board);
+		for(let y=0;y<kBoardSize.row;y++){
+			for(let x=0;x<kBoardSize.col;x++){
+				let ele = wndBoard.FindIChildByID(base_id+y*kBoardSize.col+x);
+				let stackApi = soui4.QiIStackView(ele);
+				let iIcon = Math.floor(Math.random()*7);
+				stackApi.SelectPage(iIcon);
+				stackApi.Release();
+			}
+		}
 	}
 	uninit(){
 		//do uninit.
