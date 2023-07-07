@@ -1,0 +1,11 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build R.js",
+            "type": "shell",
+            "command": "D:\\qjs\\soui4js/bin/uiresbuilder.exe -p uires -i uires\\uires.idx -j uires\\R.js",
+            "problemMatcher": []
+        }
+    ]
+}
