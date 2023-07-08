@@ -80,10 +80,28 @@ class MainDialog extends soui4.JsHostWnd{
 			let senderId = e.IdFrom();
 			if(senderId>=base_id && senderId<base_id+kBoardSize.row*kBoardSize.col)
 				this.onCmd(e);
+			if(e.NameFrom()=="btn_test"){
+				this.onTest(e);
+			}
 		}
 		return false;
 	}
 	
+	onAnimationUpdate(ani,val){
+		console.log("onAnimationUpdate");
+		//console.log("onAnimationUpdate,",val.left,val.top,val.right,val.bottom);
+	}
+
+	onTest(e){
+		console.log("test");
+		this.ani_move = new soui4.SValueAnimator();
+		this.ani_move.LoadAniamtor("animator:move");
+		this.ani_move.SetRange(new soui4.CRect(0,0,50,50),new soui4.CRect(100,100,250,250));
+		this.ani_move.cbHandler=this;
+		this.ani_move.onAnimationUpdate = this.onAnimationUpdate
+		this.ani_move.Start(this.GetIRoot());
+	}
+
 	onCmd(e){
 		if(this.click_id!=-1){
 			let ele = soui4.toIWindow(this.FindIChildByID(this.click_id));
@@ -106,7 +124,7 @@ class MainDialog extends soui4.JsHostWnd{
 		let ele = wndBoard.FindIChildByID(pos2id(pos));
 		let stackApi = soui4.QiIStackView(ele);
 		let iIcon = this.board.getGridState(pos.x,pos.y);
-		stackApi.SelectPage(iIcon);
+		stackApi.SelectPage(iIcon,true);
 		stackApi.Release();
 	}
 
@@ -138,7 +156,7 @@ class MainDialog extends soui4.JsHostWnd{
 				let ele = wndBoard.FindIChildByID(pos2id({x:x,y:y}));
 				let stackApi = soui4.QiIStackView(ele);
 				let iIcon = this.board.getGridState(x,y);
-				stackApi.SelectPage(iIcon);
+				stackApi.SelectPage(iIcon,false);
 				stackApi.Release();
 			}
 		}

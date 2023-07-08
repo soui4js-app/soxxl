@@ -22,4 +22,7 @@
   <anim>
     <file name="scale_select" path="anim\scale_select.xml"/>
   </anim>
+  <animator>
+    <file name="move" path="animator\move.xml"/>
+  </animator>
 </resource>

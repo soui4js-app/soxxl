@@ -10,6 +10,9 @@ translucent="1"
 		<imgbtn id="sysid_min" skin="_skin.sys.btn.minimize" animate="1" />
       	<imgbtn id="sysid_close" skin="_skin.sys.btn.close"    pos="-45,0" tip="close" animate="1"/>
     </caption>
+	<window size="-2,-1" layout="hbox">
+		<button name="btn_test" size="100,30" text="test"/>
+	</window>
     <window size="-1,-1" weight="1" padding="5" layout="hbox">
 		<window size="100,-2"/>
 		<window size="350,350" name="wnd_board" layout="gridlayout" columnCount="7" gravity="fill"/>		
