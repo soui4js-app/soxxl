@@ -10,17 +10,28 @@ class MainDialog extends soui4.JsHostWnd{
 	constructor(){
 		super("layout:dlg_main");
 		this.onEvt = this.onEvent;
+		this.ani_sel = soui4.GetApp().LoadAnimation("anim:scale_select");
 	}
 
 	onEvent(e){
-		if(e.GetID()==soui4.EVT_INIT){//event_init
+		let evtid = e.GetID();
+		if(evtid==soui4.EVT_INIT){//event_init
 			this.init();
-		}else if(e.GetID()==soui4.EVT_EXIT){
+		}else if(evtid==soui4.EVT_EXIT){
 			this.uninit();
+		}else if(evtid == soui4.EVT_CMD){
+			this.onCmd(e);
 		}
 		return false;
 	}
 	
+	onCmd(e){
+		let ele = soui4.toIWindow(e.Sender());
+		let ani = this.ani_sel.clone();
+		ele.SetAnimation(ani);
+		ani.Release();
+	}
+
 	initBoard(){
 		let wndBoard = this.FindIChildByID(R.id.wnd_board);
 		wndBoard.DestroyAllChildren();

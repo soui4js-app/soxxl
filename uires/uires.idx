@@ -19,4 +19,7 @@
     <file name="icons" path="image\icons.png"/>
     <file name="icons@2x" path="image\icons@2x.png"/>
   </img>
+  <anim>
+    <file name="scale_select" path="anim\scale_select.xml"/>
+  </anim>
 </resource>

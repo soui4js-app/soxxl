@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <template>
     <g.ele>
-        <stack id="{{id}}" size="-1,-1" curSel="0" msgTransparent="1" aniType="fade">
+        <stack id="{{id}}" size="-1,-1" curSel="0"  aniType="fade">
         <!--define an element that cantain 7 states-->
             <img size="-1,-1" skin="skin_icons" iconIndex="0"/>
             <img size="-2,-2" skin="skin_icons" iconIndex="1"/>
