@@ -5,12 +5,69 @@ var g_workDir="";
 
 const base_id = 1000;
 const kBoardSize={row:7,col:7};
+const kMaxState = 7;
+
+function id2pos(id){
+	id -= base_id;
+	let ret={x:-1,y:-1};
+	ret.y=Math.floor(id/kBoardSize.col);
+	ret.x=id%kBoardSize.col;
+	return ret;
+}
+
+function pos2id(pos){
+	return base_id+pos.y*kBoardSize.col+pos.x;
+}
+
+class Board {
+	constructor(mainDlg){
+		this.mainDlg = mainDlg;
+		this.board = new Array(kBoardSize.row);
+		for(let i =0;i<kBoardSize.col;i++){
+			this.board[i]=new Array(kBoardSize.col);
+		}
+		this.init();
+	}
+
+	init(){
+		for(let y=0;y<kBoardSize.row;y++){
+			for(let x=0;x<kBoardSize.col;x++){
+				this.board[y][x]=Math.floor(Math.random()*kMaxState);
+			}
+		}
+	}
+
+	getGridState(x,y){
+		return this.board[y][x];
+	}
+
+	//swap value of two grids
+	swap(pos1,pos2){
+		if(pos1.x<0 || pos1.x>=kBoardSize.col || pos1.y<0|| pos1.y>=kBoardSize.row)
+			return false;
+		if(pos2.x<0 || pos2.x>=kBoardSize.col || pos2.y<0|| pos2.y>=kBoardSize.row)
+			return false;
+		if(pos1.x==pos2.x && pos1.y==pos2.y)
+			return false;
+		let tmp = this.board[pos1.y][pos1.x];
+		this.board[pos1.y][pos1.x]=this.board[pos2.y][pos2.x];
+		this.board[pos2.y][pos2.x]=tmp;
+
+		this.mainDlg.onGridChanged(pos1);
+		this.mainDlg.onGridChanged(pos2);
+
+		//test for 3 line
+		return true;
+	}
+}
 
 class MainDialog extends soui4.JsHostWnd{
 	constructor(){
 		super("layout:dlg_main");
 		this.onEvt = this.onEvent;
 		this.ani_sel = soui4.GetApp().LoadAnimation("anim:scale_select");
+		this.board = new Board(this);
+		this.click_id = -1;
 	}
 
 	onEvent(e){
@@ -20,16 +77,37 @@ class MainDialog extends soui4.JsHostWnd{
 		}else if(evtid==soui4.EVT_EXIT){
 			this.uninit();
 		}else if(evtid == soui4.EVT_CMD){
-			this.onCmd(e);
+			let senderId = e.IdFrom();
+			if(senderId>=base_id && senderId<base_id+kBoardSize.row*kBoardSize.col)
+				this.onCmd(e);
 		}
 		return false;
 	}
 	
 	onCmd(e){
-		let ele = soui4.toIWindow(e.Sender());
-		let ani = this.ani_sel.clone();
-		ele.SetAnimation(ani);
-		ani.Release();
+		if(this.click_id!=-1){
+			let ele = soui4.toIWindow(this.FindIChildByID(this.click_id));
+			ele.ClearAnimation();
+			let pos1= id2pos(this.click_id);
+			let pos2 = id2pos(e.IdFrom());
+			this.board.swap(pos1,pos2);
+			this.click_id = -1;
+		}else{
+			let ele = soui4.toIWindow(e.Sender());
+			let ani = this.ani_sel.clone();
+			ele.SetAnimation(ani);
+			ani.Release();
+			this.click_id = e.IdFrom();
+		}
+	}
+
+	onGridChanged(pos){
+		let wndBoard = this.FindIChildByID(R.id.wnd_board);
+		let ele = wndBoard.FindIChildByID(pos2id(pos));
+		let stackApi = soui4.QiIStackView(ele);
+		let iIcon = this.board.getGridState(pos.x,pos.y);
+		stackApi.SelectPage(iIcon);
+		stackApi.Release();
 	}
 
 	initBoard(){
@@ -48,6 +126,7 @@ class MainDialog extends soui4.JsHostWnd{
 
 		wndBoard.CreateChildrenFromXml(xml);
 		wndBoard.RequestRelayout();
+		this.board.init();
 	}
 
 	init(){
@@ -56,9 +135,9 @@ class MainDialog extends soui4.JsHostWnd{
 		let wndBoard = this.FindIChildByID(R.id.wnd_board);
 		for(let y=0;y<kBoardSize.row;y++){
 			for(let x=0;x<kBoardSize.col;x++){
-				let ele = wndBoard.FindIChildByID(base_id+y*kBoardSize.col+x);
+				let ele = wndBoard.FindIChildByID(pos2id({x:x,y:y}));
 				let stackApi = soui4.QiIStackView(ele);
-				let iIcon = Math.floor(Math.random()*7);
+				let iIcon = this.board.getGridState(x,y);
 				stackApi.SelectPage(iIcon);
 				stackApi.Release();
 			}
