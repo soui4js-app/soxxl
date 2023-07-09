@@ -119,6 +119,7 @@ class Board {
 			let state = Math.floor(Math.random()*kMaxState);
 			this.setGridState(j,0,state,true);
 		}
+		this.checkBoard();
 	}
 }
 
