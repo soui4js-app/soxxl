@@ -150,6 +150,17 @@ class Board {
 		}
 		this.checkBoard();
 	}
+
+	freeSameY(x,y,len){
+		for(let i=0;i<y;i++){
+			this.setGridState(x,y+len-i,this.board[x][y-i],false);
+		}
+		for(let i=0;j<len;j++){
+			let state = Math.floor(Math.random()*kMaxState);
+			this.setGridState(x,j,state,true);
+		}
+		this.checkBoard();
+	}
 }
 
 class MainDialog extends soui4.JsHostWnd{
@@ -417,8 +428,109 @@ class MainDialog extends soui4.JsHostWnd{
 		this.ani_list.push(aniGroup);
 	}
 
-	onGetSameY(x,y,nSame){
-		console.log("onGetSameY",y,x,nSame);
+	//下沉动画结束
+	onAnimatorGroupEndY3(aniGroup){
+		let samey = aniGroup.jsUserData.samey;
+		console.log("onAnimatorGroupEndY3,samey:",samey.x,samey.y,samey.len);
+		for(let i=0;i<this.ani_list.length;i++){
+			if(this.ani_list[i]==aniGroup){
+				this.ani_list.splice(i,1);
+				break;
+			}
+		}
+
+		this.checkAnimatorList();
+		//update board state.
+		this.board.freeSameY(samey.x,samey.y,samey.len);
+	}
+
+		//消除动画结束
+		onAnimatorGroupEndY2(aniGroup){
+			console.log("onAnimatorGroupEndY2");
+			for(let i=0;i<this.ani_list.length;i++){
+				if(this.ani_list[i]==aniGroup){
+					this.ani_list.splice(i,1);
+					break;
+				}
+			}
+			//启动元素下降动画
+			let samey = aniGroup.jsUserData.samey;
+			if(samey.y>0){
+				let aniGroup2 = new soui4.SAnimatorGroup();
+				aniGroup2.cbHandler=this;
+				aniGroup2.onAnimatorGroupEnd = this.onAnimatorGroupEndY3;
+				aniGroup2.jsUserData={anis:[],pos:[],samey:samey};
+	
+				let wnd_aniframe = this.FindIChildByID(R.id.wnd_aniframe);
+	
+				let posLst= aniGroup.jsUserData.pos;
+				for(let y=0;y<samey.y;y++){
+						let pos={x:samey.x,y:y};
+						let id = pos2id(pos);
+						let ele = this.FindIChildByID(id);
+						ele.SetVisible(false,false);
+						let state = this.board.getGridState(pos.x,pos.y);
+						let ani_widget = this.buildAniWidget(wnd_aniframe,id,state);
+						let ani = new soui4.SValueAnimator();
+						ani.CopyFrom(this.ani_move);
+						let rc1=ele.GetWindowRect();
+						let rc2=new soui4.CRect(rc1.left,rc1.top,rc1.right,rc1.bottom);
+						rc2.OffsetRect(0,rc2.Height()*samey.len);
+						ani.SetRange(rc1,rc2);
+						ani.cbHandler = this;
+						ani.onAnimationUpdate=this.onAnimationUpdate;
+						ani.onAnimationEnd=this.onAnimationEnd;	
+						ani.jsUserData={ele:ele,ani_widget:ani_widget};
+						ani.Start(wnd_aniframe.GetContainer());
+						aniGroup2.AddAnimator(ani.GetIValueAnimator());
+						aniGroup2.jsUserData.anis.push(ani);
+						aniGroup2.jsUserData.pos.push(pos);
+				}
+				this.ani_list.push(aniGroup2);
+			}else{
+				this.onAnimatorGroupEndY3(aniGroup);
+			}
+	}
+
+	onGetSameY(x,y,len){
+		console.log("onGetSameY",y,x,len);
+
+		let wnd_aniframe = this.FindIChildByID(R.id.wnd_aniframe);
+		wnd_aniframe.SetVisible(true,true);
+
+		//播放动画，显示一列元素合并成一个的动画
+		let aniGroup = new soui4.SAnimatorGroup();
+		aniGroup.cbHandler=this;
+		aniGroup.onAnimatorGroupEnd = this.onAnimatorGroupEndY2;
+		aniGroup.jsUserData={anis:[],pos:[],samey:{y:y,x:x,len:len}};
+
+		let state = this.board.getGridState(x,y);
+		let posStart={x:x,y:y};
+		let posEnd={x:x,y:y+len-1};
+		let rcStart = this.getEleRect(posStart);
+		let rcEnd = this.getEleRect(posEnd);
+		let rcCenter = rcStart;
+		rcCenter.OffsetRect(0,(rcEnd.bottom-rcStart.bottom)/2);
+
+		for(let i=0;i<len;i++){
+			let pos={x:x,y:y+i};
+			let id = pos2id(pos);
+			let ele = this.FindIChildByID(id);
+			ele.SetVisible(false,true);
+			let ani_widget = this.buildAniWidget(wnd_aniframe,id,state);
+			let ani = new soui4.SValueAnimator();
+			ani.CopyFrom(this.ani_move);
+			ani.SetRange(ele.GetWindowRect(),rcCenter);
+			ani.cbHandler = this;
+			ani.onAnimationUpdate=this.onAnimationUpdate;
+			ani.onAnimationEnd=this.onAnimationEnd;	
+			ani.jsUserData={ele:ele,ani_widget:ani_widget};
+			ani.Start(wnd_aniframe.GetContainer());
+			aniGroup.AddAnimator(ani.GetIValueAnimator());
+			aniGroup.jsUserData.anis.push(ani);
+			aniGroup.jsUserData.pos.push(pos);
+		}
+		this.ani_list.push(aniGroup);
 	}
 
 	onGridChanged(pos,enableAni){
