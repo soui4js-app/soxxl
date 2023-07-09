@@ -29,12 +29,18 @@ class Board {
 	}
 
 	init(){
+		console.log("!!!init board");
 		for(let y=0;y<kBoardSize.row;y++){
 			for(let x=0;x<kBoardSize.col;x++){
 				this.board[y][x]=Math.floor(Math.random()*kMaxState);
 			}
 		}
 		this.checkBoard();
+	}
+
+	randomState(pos){
+		this.board[pos.y][pos.x]=Math.floor(Math.random()*kMaxState);
+		this.mainDlg.onGridChanged(pos);
 	}
 
 	getGridStateById(id){
@@ -79,17 +85,21 @@ class Board {
 		const kMinSame = 3;//min same ele
 		for(let y=kBoardSize.row-1;y>=0;y--){
 			let nSame = 1;
-			for(let x=1;x<kBoardSize.col;x++){
+			let x=1;
+			for(;x<kBoardSize.col;x++){
 				if(this.board[y][x]==this.board[y][x-1])
 				{
 					nSame++;
 				}else{
 					if(nSame>=kMinSame){
-						this.mainDlg.onGetSameX(y,x-nSame,nSame);
-						return true;
+						break;
 					}
 					nSame = 1;
 				}
+			}
+			if(nSame>=kMinSame){
+				this.mainDlg.onGetSameX(y,x-nSame,nSame);
+				return true;
 			}
 		}
 		return false;
@@ -126,6 +136,7 @@ class MainDialog extends soui4.JsHostWnd{
 
 	onTest(e){
 		console.log("onTest");
+		this.board.checkBoard();
 	}
 
 	buildAniWidget(aniframe,id,state){
@@ -274,7 +285,8 @@ class MainDialog extends soui4.JsHostWnd{
 		for(let i=0;i<pos.length;i++){
 			let id = pos2id(pos[i]);
 			let ele = this.FindIChildByID(id);
-			ele.SetVisible(false,true);
+			this.board.randomState(pos[i]);
+			//ele.SetVisible(false,true);
 		}
 
 		this.checkAnimatorList();
@@ -302,7 +314,7 @@ class MainDialog extends soui4.JsHostWnd{
 			let pos={x:x+i,y:y};
 			let id = pos2id(pos);
 			let ele = this.FindIChildByID(id);
-			let ani_widget = this.buildAniWidget(wnd_aniframe,pos,state);
+			let ani_widget = this.buildAniWidget(wnd_aniframe,id,state);
 			let ani = new soui4.SValueAnimator();
 			ani.CopyFrom(this.ani_move);
 			ani.SetRange(ele.GetWindowRect(),rcCenter);
