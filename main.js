@@ -119,27 +119,33 @@ class MainDialog extends soui4.JsHostWnd{
 		return ret;
 	}
 
-		
+	
 	onAnimationEnd(ani){
 		console.log("onAnimationEnd");
-		for(let i=0;i<this.ani_list.length;i++){
-			if(this.ani_list[i] === ani){
-				this.ani_list.splice(i,1);
-				break;
-			}
-		}
-		//
 		let userData = ani.jsUserData;
 		userData.ani_widget.Destroy();
 		userData.ele.SetVisible(true,true);
-		if(this.ani_list.length==0){
-			let wnd_aniframe=this.FindIChildByID(R.id.wnd_aniframe);
-			wnd_aniframe.SetVisible(false,true);
-		}
 	}
 	onAnimationUpdate(ani,val){
 		let userData = ani.jsUserData;
 		userData.ani_widget.Move(val);
+	}
+
+	onAnimatorGroupEnd(aniGroup){
+		console.log("onAnimatorGroupEnd");
+		for(let i=0;i<this.ani_list.length;i++){
+			if(this.ani_list[i]==aniGroup){
+				this.ani_list.splice(i,1);
+				break;
+			}
+		}
+		let pos= aniGroup.jsUserData.pos;
+		this.board.swap(pos[0],pos[1]);
+
+		if(this.ani_list.length==0){
+			let wnd_aniframe=this.FindIChildByID(R.id.wnd_aniframe);
+			wnd_aniframe.SetVisible(false,true);
+		}
 	}
 
 	onCmd(e){
@@ -158,9 +164,14 @@ class MainDialog extends soui4.JsHostWnd{
 				let ele2 =this.FindIChildByID(id2);
 				ele1.SetVisible(false,false);
 				ele2.SetVisible(false,false);
+				this.click_id = -1;
 				
 				let rc1 = ele1.GetWindowRect();
 				let rc2 = ele2.GetWindowRect();
+				let aniGroup = new soui4.SAnimatorGroup();
+				aniGroup.cbHandler=this;
+				aniGroup.onAnimatorGroupEnd = this.onAnimatorGroupEnd;
+				aniGroup.jsUserData={anis:[],pos:[]};
 				{
 					let ani = new soui4.SValueAnimator();
 					ani.CopyFrom(this.ani_move);
@@ -176,8 +187,9 @@ class MainDialog extends soui4.JsHostWnd{
 					ani.onAnimationEnd=this.onAnimationEnd;	
 					ani.jsUserData={ele:ele1,ani_widget:ani_widget};
 					ani.Start(wnd_aniframe.GetContainer());
-					//this.ani1=ani;
-					this.ani_list.push(ani);
+					aniGroup.AddAnimator(ani.GetIValueAnimator());
+					aniGroup.jsUserData.anis.push(ani);
+					aniGroup.jsUserData.pos.push(pos);
 				}
 				{
 					let ani = new soui4.SValueAnimator();
@@ -196,9 +208,12 @@ class MainDialog extends soui4.JsHostWnd{
 					ani.jsUserData={ele:ele2,ani_widget:ani_widget};
 
 					ani.Start(wnd_aniframe.GetContainer());
-					//this.ani2=ani;
-					this.ani_list.push(ani);
+					aniGroup.AddAnimator(ani.GetIValueAnimator());
+					aniGroup.jsUserData.anis.push(ani);
+					aniGroup.jsUserData.pos.push(pos);
 				}
+				this.ani_list.push(aniGroup);
+
 				console.log("ani_list.length",this.ani_list.length);
 			}else{
 				this.click_id=-1;
