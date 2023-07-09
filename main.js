@@ -45,8 +45,12 @@ class Board {
 	}
 
 	setGridState(x,y,state,enableAni){
-		this.board[y][x]=state;
-		this.mainDlg.onGridChanged({x:x,y:y},enableAni);
+		try{
+			this.board[y][x]=state;
+			this.mainDlg.onGridChanged({x:x,y:y},enableAni);	
+		}catch(e){
+			console.log(e);
+		}
 	}
 	getGridStateById(id){
 		let pos = id2pos(id);
@@ -109,7 +113,7 @@ class Board {
 			}
 			if(y<0) y=0;
 			if(nSame>=kMinSame){
-				this.mainDlg.onGetSameY(y,x,nSame);
+				this.mainDlg.onGetSameY(x,y,nSame);
 				return true;
 			}
 		}
@@ -153,8 +157,8 @@ class Board {
 	}
 
 	freeSameY(x,y,len){
-		for(let i=0;i<y;i++){
-			this.setGridState(x,y+len-i,this.board[x][y-i],false);
+		for(let i=0;i<len;i++){
+			this.setGridState(x,y+len-1-i,this.board[x][y-1-i],false);
 		}
 		for(let j=0;j<len;j++){
 			let state = Math.floor(Math.random()*kMaxState);
@@ -493,8 +497,8 @@ class MainDialog extends soui4.JsHostWnd{
 			}
 	}
 
-	onGetSameY(y,x,len){
-		console.log("onGetSameY",y,x,len);
+	onGetSameY(x,y,len){
+		console.log("onGetSameY",x,y,len);
 
 		let wnd_aniframe = this.FindIChildByID(R.id.wnd_aniframe);
 		wnd_aniframe.SetVisible(true,true);
@@ -503,7 +507,7 @@ class MainDialog extends soui4.JsHostWnd{
 		let aniGroup = new soui4.SAnimatorGroup();
 		aniGroup.cbHandler=this;
 		aniGroup.onAnimatorGroupEnd = this.onAnimatorGroupEndY2;
-		aniGroup.jsUserData={anis:[],pos:[],samey:{y:y,x:x,len:len}};
+		aniGroup.jsUserData={anis:[],pos:[],samey:{x:x,y:y,len:len}};
 
 		let state = this.board.getGridState(x,y);
 		let posStart={x:x,y:y};
