@@ -107,6 +107,7 @@ class Board {
 					nSame = 1;
 				}
 			}
+			if(y<0) y=0;
 			if(nSame>=kMinSame){
 				this.mainDlg.onGetSameY(y,x,nSame);
 				return true;
@@ -155,7 +156,7 @@ class Board {
 		for(let i=0;i<y;i++){
 			this.setGridState(x,y+len-i,this.board[x][y-i],false);
 		}
-		for(let i=0;j<len;j++){
+		for(let j=0;j<len;j++){
 			let state = Math.floor(Math.random()*kMaxState);
 			this.setGridState(x,j,state,true);
 		}
@@ -492,7 +493,7 @@ class MainDialog extends soui4.JsHostWnd{
 			}
 	}
 
-	onGetSameY(x,y,len){
+	onGetSameY(y,x,len){
 		console.log("onGetSameY",y,x,len);
 
 		let wnd_aniframe = this.FindIChildByID(R.id.wnd_aniframe);
