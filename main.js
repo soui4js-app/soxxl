@@ -43,6 +43,10 @@ class Board {
 		this.mainDlg.onGridChanged(pos);
 	}
 
+	setGridState(x,y,state){
+		this.board[y][x]=state;
+		this.mainDlg.onGridChanged({x:x,y:y});
+	}
 	getGridStateById(id){
 		let pos = id2pos(id);
 		return this.getGridState(pos.x,pos.y);
@@ -103,6 +107,18 @@ class Board {
 			}
 		}
 		return false;
+	}
+
+	freeSameX(y,x,len){
+		for(let i=y;i>0;i--){
+			for(let j=x;j<x+len;j++){
+				this.setGridState(j,i,this.board[i-1][j]);
+			}
+		}
+		for(let j=x;j<x+len;j++){
+			let state = Math.floor(Math.random()*kMaxState);
+			this.setGridState(j,0,state);
+		}
 	}
 }
 
@@ -272,15 +288,20 @@ class MainDialog extends soui4.JsHostWnd{
 		return ele.GetWindowRect();
 	}
 
+	//下沉动画结束
 	onAnimatorGroupEnd3(aniGroup){
-		console.log("onAnimatorGroupEnd3");
+		let samex = aniGroup.jsUserData.samex;
+		console.log("onAnimatorGroupEnd3,samex:",samex.y,samex.x,samex.len);
 		for(let i=0;i<this.ani_list.length;i++){
 			if(this.ani_list[i]==aniGroup){
 				this.ani_list.splice(i,1);
 				break;
 			}
 		}
+
 		this.checkAnimatorList();
+		//update board state.
+		this.board.freeSameX(samex.y,samex.x,samex.len);
 	}
 
 	//消除动画结束
@@ -296,7 +317,7 @@ class MainDialog extends soui4.JsHostWnd{
 		let aniGroup2 = new soui4.SAnimatorGroup();
 		aniGroup2.cbHandler=this;
 		aniGroup2.onAnimatorGroupEnd = this.onAnimatorGroupEnd3;
-		aniGroup2.jsUserData={anis:[],pos:[]};
+		aniGroup2.jsUserData={anis:[],pos:[],samex:aniGroup.jsUserData.samex};
 
 		let wnd_aniframe = this.FindIChildByID(R.id.wnd_aniframe);
 
@@ -306,6 +327,7 @@ class MainDialog extends soui4.JsHostWnd{
 				let pos={x:posLst[i].x,y:j};
 				let id = pos2id(pos);
 				let ele = this.FindIChildByID(id);
+				ele.SetVisible(false,false);
 				let state = this.board.getGridState(pos.x,pos.y);
 				let ani_widget = this.buildAniWidget(wnd_aniframe,id,state);
 				let ani = new soui4.SValueAnimator();
@@ -335,7 +357,7 @@ class MainDialog extends soui4.JsHostWnd{
 		let aniGroup = new soui4.SAnimatorGroup();
 		aniGroup.cbHandler=this;
 		aniGroup.onAnimatorGroupEnd = this.onAnimatorGroupEnd2;
-		aniGroup.jsUserData={anis:[],pos:[]};
+		aniGroup.jsUserData={anis:[],pos:[],samex:{y:y,x:x,len:len}};
 
 		let state = this.board.getGridState(x,y);
 		let posStart={x:x,y:y};
