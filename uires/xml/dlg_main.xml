@@ -15,7 +15,10 @@ translucent="1"
 	</window>
     <window size="-1,-1" weight="1" padding="5" layout="hbox">
 		<window size="100,-2"/>
-		<window size="350,350" name="wnd_board" layout="gridlayout" columnCount="7" gravity="fill"/>		
+		<stack size="-1,-1" curSel="-2">
+			<window size="-1,-1" name="wnd_board" layout="gridlayout" columnCount="7" gravity="fill"/>		
+			<window size="-2,-2" name="wnd_aniframe" visible="0"/>
+		</stack>
 		<window size="100,-2"/>
     </window>
   </root>

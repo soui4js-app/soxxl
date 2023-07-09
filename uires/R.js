@@ -1,18 +1,26 @@
-﻿//stamp:07669f52b9cf439b
+﻿//stamp:0766c48c173b3f14
 /*<------------------------------------------------------------------------------------------------->*/
 /*该文件由uiresbuilder生成，请不要手动修改*/
 /*<------------------------------------------------------------------------------------------------->*/
 export const R={
 	name:{
+		btn_test:"btn_test",
+		wnd_aniframe:"wnd_aniframe",
 		wnd_board:"wnd_board"
 	},
 	id:{
-		wnd_board:65536
+		btn_test:65536,
+		wnd_aniframe:65538,
+		wnd_board:65537
 	},
 	name_arr:[
+		"btn_test",
+		"wnd_aniframe",
 		"wnd_board"
 	],
 	id_arr:[
-		65536
+		65536,
+		65538,
+		65537
 	]
 };
