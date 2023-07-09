@@ -26,7 +26,6 @@ class Board {
 		for(let i =0;i<kBoardSize.col;i++){
 			this.board[i]=new Array(kBoardSize.col);
 		}
-		this.init();
 	}
 
 	init(){
@@ -35,6 +34,7 @@ class Board {
 				this.board[y][x]=Math.floor(Math.random()*kMaxState);
 			}
 		}
+		this.checkBoard();
 	}
 
 	getGridStateById(id){
@@ -70,8 +70,29 @@ class Board {
 		this.mainDlg.onGridChanged(pos1);
 		this.mainDlg.onGridChanged(pos2);
 
-		//test for 3 line
+		//test for 3 elements
+		this.checkBoard();
 		return true;
+	}
+
+	checkBoard(){
+		const kMinSame = 3;//min same ele
+		for(let y=kBoardSize.row-1;y>=0;y--){
+			let nSame = 1;
+			for(let x=1;x<kBoardSize.col;x++){
+				if(this.board[y][x]==this.board[y][x-1])
+				{
+					nSame++;
+				}else{
+					if(nSame>=kMinSame){
+						this.mainDlg.onGetSameX(y,x-nSame,nSame);
+						return true;
+					}
+					nSame = 1;
+				}
+			}
+		}
+		return false;
 	}
 }
 
@@ -104,6 +125,7 @@ class MainDialog extends soui4.JsHostWnd{
 	}
 
 	onTest(e){
+		console.log("onTest");
 	}
 
 	buildAniWidget(aniframe,id,state){
@@ -124,8 +146,9 @@ class MainDialog extends soui4.JsHostWnd{
 		console.log("onAnimationEnd");
 		let userData = ani.jsUserData;
 		userData.ani_widget.Destroy();
-		userData.ele.SetVisible(true,true);
+		userData.ele.SetVisible(true,false);
 	}
+
 	onAnimationUpdate(ani,val){
 		let userData = ani.jsUserData;
 		userData.ani_widget.Move(val);
@@ -142,6 +165,10 @@ class MainDialog extends soui4.JsHostWnd{
 		let pos= aniGroup.jsUserData.pos;
 		this.board.swap(pos[0],pos[1]);
 
+		this.checkAnimatorList();
+	}
+
+	checkAnimatorList(){
 		if(this.ani_list.length==0){
 			let wnd_aniframe=this.FindIChildByID(R.id.wnd_aniframe);
 			wnd_aniframe.SetVisible(false,true);
@@ -165,7 +192,7 @@ class MainDialog extends soui4.JsHostWnd{
 				ele1.SetVisible(false,false);
 				ele2.SetVisible(false,false);
 				this.click_id = -1;
-				
+
 				let rc1 = ele1.GetWindowRect();
 				let rc2 = ele2.GetWindowRect();
 				let aniGroup = new soui4.SAnimatorGroup();
@@ -226,6 +253,10 @@ class MainDialog extends soui4.JsHostWnd{
 			ani.Release();
 			this.click_id = e.IdFrom();
 		}
+	}
+
+	onGetSameX(y,x,len){
+		console.log("onGetSameX",y,x,len);
 	}
 
 	onGridChanged(pos){
