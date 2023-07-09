@@ -255,8 +255,67 @@ class MainDialog extends soui4.JsHostWnd{
 		}
 	}
 
+	getEleRect(pos){
+		let id = pos2id(pos);
+		let ele = this.FindIChildByID(id);
+		return ele.GetWindowRect();
+	}
+
+	onAnimatorGroupEnd2(aniGroup){
+		console.log("onAnimatorGroupEnd");
+		for(let i=0;i<this.ani_list.length;i++){
+			if(this.ani_list[i]==aniGroup){
+				this.ani_list.splice(i,1);
+				break;
+			}
+		}
+		//hide the line
+		let pos= aniGroup.jsUserData.pos;
+		for(let i=0;i<pos.length;i++){
+			let id = pos2id(pos[i]);
+			let ele = this.FindIChildByID(id);
+			ele.SetVisible(false,true);
+		}
+
+		this.checkAnimatorList();
+	}
+
 	onGetSameX(y,x,len){
 		console.log("onGetSameX",y,x,len);
+		let wnd_aniframe = this.FindIChildByID(R.id.wnd_aniframe);
+		wnd_aniframe.SetVisible(true,true);
+
+		let aniGroup = new soui4.SAnimatorGroup();
+		aniGroup.cbHandler=this;
+		aniGroup.onAnimatorGroupEnd = this.onAnimatorGroupEnd2;
+		aniGroup.jsUserData={anis:[],pos:[]};
+
+		let state = this.board.getGridState(x,y);
+		let posStart={x:x,y:y};
+		let posEnd={x:x+len-1,y};
+		let rcStart = this.getEleRect(posStart);
+		let rcEnd = this.getEleRect(posEnd);
+		let rcCenter = rcStart;
+		rcCenter.OffsetRect((rcEnd.right-rcStart.right)/2,0);
+
+		for(let i=0;i<len;i++){
+			let pos={x:x+i,y:y};
+			let id = pos2id(pos);
+			let ele = this.FindIChildByID(id);
+			let ani_widget = this.buildAniWidget(wnd_aniframe,pos,state);
+			let ani = new soui4.SValueAnimator();
+			ani.CopyFrom(this.ani_move);
+			ani.SetRange(ele.GetWindowRect(),rcCenter);
+			ani.cbHandler = this;
+			ani.onAnimationUpdate=this.onAnimationUpdate;
+			ani.onAnimationEnd=this.onAnimationEnd;	
+			ani.jsUserData={ele:ele,ani_widget:ani_widget};
+			ani.Start(wnd_aniframe.GetContainer());
+			aniGroup.AddAnimator(ani.GetIValueAnimator());
+			aniGroup.jsUserData.anis.push(ani);
+			aniGroup.jsUserData.pos.push(pos);
+		}
+		this.ani_list.push(aniGroup);
 	}
 
 	onGridChanged(pos){
