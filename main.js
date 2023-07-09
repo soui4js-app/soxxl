@@ -272,24 +272,59 @@ class MainDialog extends soui4.JsHostWnd{
 		return ele.GetWindowRect();
 	}
 
-	onAnimatorGroupEnd2(aniGroup){
-		console.log("onAnimatorGroupEnd");
+	onAnimatorGroupEnd3(aniGroup){
+		console.log("onAnimatorGroupEnd3");
 		for(let i=0;i<this.ani_list.length;i++){
 			if(this.ani_list[i]==aniGroup){
 				this.ani_list.splice(i,1);
 				break;
 			}
 		}
-		//hide the line
-		let pos= aniGroup.jsUserData.pos;
-		for(let i=0;i<pos.length;i++){
-			let id = pos2id(pos[i]);
-			let ele = this.FindIChildByID(id);
-			this.board.randomState(pos[i]);
-			//ele.SetVisible(false,true);
-		}
-
 		this.checkAnimatorList();
+	}
+
+	//消除动画结束
+	onAnimatorGroupEnd2(aniGroup){
+		console.log("onAnimatorGroupEnd2");
+		for(let i=0;i<this.ani_list.length;i++){
+			if(this.ani_list[i]==aniGroup){
+				this.ani_list.splice(i,1);
+				break;
+			}
+		}
+		//启动元素下降动画
+		let aniGroup2 = new soui4.SAnimatorGroup();
+		aniGroup2.cbHandler=this;
+		aniGroup2.onAnimatorGroupEnd = this.onAnimatorGroupEnd3;
+		aniGroup2.jsUserData={anis:[],pos:[]};
+
+		let wnd_aniframe = this.FindIChildByID(R.id.wnd_aniframe);
+
+		let posLst= aniGroup.jsUserData.pos;
+		for(let i=0;i<posLst.length;i++){
+			for(let j=0;j<posLst[i].y;j++){
+				let pos={x:posLst[i].x,y:j};
+				let id = pos2id(pos);
+				let ele = this.FindIChildByID(id);
+				let state = this.board.getGridState(pos.x,pos.y);
+				let ani_widget = this.buildAniWidget(wnd_aniframe,id,state);
+				let ani = new soui4.SValueAnimator();
+				ani.CopyFrom(this.ani_move);
+				let rc1=ele.GetWindowRect();
+				let rc2=new soui4.CRect(rc1.left,rc1.top,rc1.right,rc1.bottom);
+				rc2.OffsetRect(0,rc2.Height());
+				ani.SetRange(rc1,rc2);
+				ani.cbHandler = this;
+				ani.onAnimationUpdate=this.onAnimationUpdate;
+				ani.onAnimationEnd=this.onAnimationEnd;	
+				ani.jsUserData={ele:ele,ani_widget:ani_widget};
+				ani.Start(wnd_aniframe.GetContainer());
+				aniGroup2.AddAnimator(ani.GetIValueAnimator());
+				aniGroup2.jsUserData.anis.push(ani);
+				aniGroup2.jsUserData.pos.push(pos);
+			}
+		}
+		this.ani_list.push(aniGroup2);
 	}
 
 	onGetSameX(y,x,len){
