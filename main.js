@@ -371,6 +371,7 @@ class MainDialog extends soui4.JsHostWnd{
 			let pos={x:x+i,y:y};
 			let id = pos2id(pos);
 			let ele = this.FindIChildByID(id);
+			ele.SetVisible(false,true);
 			let ani_widget = this.buildAniWidget(wnd_aniframe,id,state);
 			let ani = new soui4.SValueAnimator();
 			ani.CopyFrom(this.ani_move);
