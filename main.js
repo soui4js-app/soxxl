@@ -6,6 +6,7 @@ var g_workDir="";
 const base_id = 1000;
 const kBoardSize={row:7,col:7};
 const kMaxState = 7;
+const kMinSame = 3;//min same ele
 
 function id2pos(id){
 	id -= base_id;
@@ -86,7 +87,35 @@ class Board {
 	}
 
 	checkBoard(){
-		const kMinSame = 3;//min same ele
+		if(this.checkBoardRow())
+			return true;
+		return this.checkBoardCol();
+	}
+	checkBoardCol(){
+		for(let x=0;x<kBoardSize.col;x++){
+			let nSame = 1;
+			let y=kBoardSize.row-2;
+			for(;y>=0;y--){
+				if(this.board[y][x]==this.board[y+1][x])
+				{
+					nSame++;
+				}else{
+					if(nSame>=kMinSame){
+						y++;
+						break;
+					}
+					nSame = 1;
+				}
+			}
+			if(nSame>=kMinSame){
+				this.mainDlg.onGetSameY(y,x,nSame);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	checkBoardRow(){
 		for(let y=kBoardSize.row-1;y>=0;y--){
 			let nSame = 1;
 			let x=1;
@@ -386,6 +415,10 @@ class MainDialog extends soui4.JsHostWnd{
 			aniGroup.jsUserData.pos.push(pos);
 		}
 		this.ani_list.push(aniGroup);
+	}
+
+	onGetSameY(x,y,nSame){
+		console.log("onGetSameY",y,x,nSame);
 	}
 
 	onGridChanged(pos,enableAni){
