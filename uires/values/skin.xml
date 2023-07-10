@@ -3,4 +3,5 @@
 <skin>
     <imglist name="skin_icons" src="img:icons" states="7" scale="100"/>
     <imglist name="skin_icons" src="img:icons@2x" states="7" scale="200"/>
+    <imglist name="skin_digit" src="img:png_digit" states="10"/>
 </skin>

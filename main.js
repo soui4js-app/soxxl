@@ -177,8 +177,42 @@ class MainDialog extends soui4.JsHostWnd{
 		this.board = new Board(this);
 		this.click_id = -1;
 		this.ani_list=[];
+		this.coin = 20;
+		this.score = 0;
 	}
 
+	showScore(){
+		let num = this.score;
+		if(num>999)
+			return;
+		let dig0 = num%10;
+		let dig1 = num/10%10;
+		let dig2 = num/100%10;
+		this.setDigit("digit_score_0",dig0);
+		this.setDigit("digit_score_1",dig1);
+		this.setDigit("digit_score_2",dig2);
+	}
+
+	showCoin(){
+		let num = this.coin;
+		if(num>999)
+			return;
+		let dig0 = num%10;
+		let dig1 = num/10%10;
+		let dig2 = num/100%10;
+		this.setDigit("digit_coin_0",dig0);
+		this.setDigit("digit_coin_1",dig1);
+		this.setDigit("digit_coin_2",dig2);
+	}
+
+	setDigit(digitName,digit){
+		let stack=this.FindIChildByName(digitName);
+		if(stack!=0){
+			let stackApi=soui4.QiIStackView(stack);
+			stackApi.SelectPage(digit,true);
+			stackApi.Release();
+		}
+	}
 	onEvent(e){
 		let evtid = e.GetID();
 		if(evtid==soui4.EVT_INIT){//event_init
@@ -189,16 +223,8 @@ class MainDialog extends soui4.JsHostWnd{
 			let senderId = e.IdFrom();
 			if(senderId>=base_id && senderId<base_id+kBoardSize.row*kBoardSize.col)
 				this.onCmd(e);
-			if(e.NameFrom()=="btn_test"){
-				this.onTest(e);
-			}
 		}
 		return false;
-	}
-
-	onTest(e){
-		console.log("onTest");
-		this.board.checkBoard();
 	}
 
 	buildAniWidget(aniframe,id,state){
@@ -238,7 +264,8 @@ class MainDialog extends soui4.JsHostWnd{
 		}
 		let pos= aniGroup.jsUserData.pos;
 		this.board.swap(pos[0],pos[1]);
-
+		this.coin--;
+		this.showCoin();
 		this.checkAnimatorList();
 	}
 
@@ -250,6 +277,8 @@ class MainDialog extends soui4.JsHostWnd{
 	}
 
 	onCmd(e){
+		if(this.coin<=0)
+			return;
 		if(this.click_id!=-1){
 			let ele = soui4.toIWindow(this.FindIChildByID(this.click_id));
 			ele.ClearAnimation();
@@ -342,6 +371,11 @@ class MainDialog extends soui4.JsHostWnd{
 
 		this.checkAnimatorList();
 		//update board state.
+		this.coin ++;
+		this.showCoin();
+		this.score += samex.len;
+		this.showScore();
+
 		this.board.freeSameX(samex.y,samex.x,samex.len);
 	}
 
@@ -446,6 +480,11 @@ class MainDialog extends soui4.JsHostWnd{
 
 		this.checkAnimatorList();
 		//update board state.
+		this.coin ++;
+		this.showCoin();
+		this.score += samey.len;
+		this.showScore();
+
 		this.board.freeSameY(samey.x,samey.y,samey.len);
 	}
 
@@ -579,6 +618,8 @@ class MainDialog extends soui4.JsHostWnd{
 				stackApi.Release();
 			}
 		}
+		this.showCoin();
+		this.showScore();
 	}
 	uninit(){
 		//do uninit.

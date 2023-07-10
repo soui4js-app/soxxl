@@ -5,7 +5,9 @@
   <LAYOUT>
     <file name="dlg_main" path="xml\dlg_main.xml"/>
   </LAYOUT>
-  
+  <xml>
+    <file name="digit" path="xml\digit.xml"/>
+  </xml>
   <values>
   	<file name="string" path="values\string.xml"/>
   	<file name="color" path="values\color.xml"/>
@@ -18,6 +20,7 @@
   <img>
     <file name="icons" path="image\icons.png"/>
     <file name="icons@2x" path="image\icons@2x.png"/>
+    <file name="png_digit"  path="image\digit.png"/>
   </img>
   <anim>
     <file name="scale_select" path="anim\scale_select.xml"/>

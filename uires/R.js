@@ -1,26 +1,46 @@
-﻿//stamp:0766c48c173b3f14
+﻿//stamp:0766c5bf13d8e08b
 /*<------------------------------------------------------------------------------------------------->*/
 /*该文件由uiresbuilder生成，请不要手动修改*/
 /*<------------------------------------------------------------------------------------------------->*/
 export const R={
 	name:{
-		btn_test:"btn_test",
+		digit_coin_0:"digit_coin_0",
+		digit_coin_1:"digit_coin_1",
+		digit_coin_2:"digit_coin_2",
+		digit_score_0:"digit_score_0",
+		digit_score_1:"digit_score_1",
+		digit_score_2:"digit_score_2",
 		wnd_aniframe:"wnd_aniframe",
 		wnd_board:"wnd_board"
 	},
 	id:{
-		btn_test:65536,
-		wnd_aniframe:65538,
-		wnd_board:65537
+		digit_coin_0:65538,
+		digit_coin_1:65537,
+		digit_coin_2:65536,
+		digit_score_0:65541,
+		digit_score_1:65540,
+		digit_score_2:65539,
+		wnd_aniframe:65543,
+		wnd_board:65542
 	},
 	name_arr:[
-		"btn_test",
+		"digit_coin_0",
+		"digit_coin_1",
+		"digit_coin_2",
+		"digit_score_0",
+		"digit_score_1",
+		"digit_score_2",
 		"wnd_aniframe",
 		"wnd_board"
 	],
 	id_arr:[
-		65536,
 		65538,
-		65537
+		65537,
+		65536,
+		65541,
+		65540,
+		65539,
+		65543,
+		65542
 	]
 };
