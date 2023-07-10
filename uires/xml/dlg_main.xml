@@ -14,12 +14,22 @@ translucent="1"
 		<button name="btn_test" size="100,30" text="test"/>
 	</window>
     <window size="-1,-1" weight="1" padding="5" layout="hbox">
-		<window size="100,-2"/>
+		<window size="100,-2" layout="vbox" gravity="center" interval="10" font="adding:5">
+			<window size="0,0" weight="1"/>
+			<text text="Hello"/>
+			<text text="soui4js" colorText="@color/red"/>
+			<window size="0,0" weight="1"/>
+		</window>
 		<stack size="-1,-1" curSel="-2">
 			<window size="-1,-1" name="wnd_board" layout="gridlayout" columnCount="7" gravity="fill"/>		
 			<window size="-2,-2" name="wnd_aniframe" visible="0"/>
 		</stack>
-		<window size="100,-2"/>
+		<window size="100,-2" layout="vbox" gravity="center" interval="10" font="adding:5">
+			<window size="0,0" weight="1"/>
+			<text text="QQ群"/>
+			<text text="385438344" colorText="@color/red"/>
+			<window size="0,0" weight="1"/>
+		</window>
     </window>
   </root>
 </SOUI>
