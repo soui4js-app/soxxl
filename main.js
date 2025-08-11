@@ -620,7 +620,7 @@ class MainDialog extends soui4.JsHostWnd{
 		}
 		this.showCoin();
 		this.showScore();
-		this.SetEventIdMask(soui4.EVT_CMD,-1,true);//enable all cmd event.
+		this.RequireEventForCtrlID(soui4.EVT_CMD,-1,true);//enable all cmd event.
 	}
 	uninit(){
 		//do uninit.
